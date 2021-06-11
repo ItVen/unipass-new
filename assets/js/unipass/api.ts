@@ -83,3 +83,28 @@ export async function getAccountPubkey(email?: string, phone?: string) {
     return false
   }
 }
+
+export async function getCkbAddress(pubkey?: string, email?: string) {
+  const qai = {
+    pubkey,
+    email,
+  }
+  console.log('[qai]', qai)
+  try {
+    const data = (await apolloClient.mutate({
+      mutation: gql`
+        query queryAddress($qai: QueryAddressInput!) {
+          queryAddress(queryAddressInput: $qai) {
+            address
+          }
+        }
+      `,
+      variables: { qai },
+    })) as ReqData
+    console.log('[getCkbAddress]', data)
+    return data.data.queryAddress.address
+  } catch (e) {
+    console.log('[getCkbAddress-error]', e)
+    throw new Error('no data')
+  }
+}
